@@ -1,5 +1,25 @@
 <script>
-  export let name;
+  //get supplier list from backend
+  import { onMount } from "svelte";
+
+  let array = [];
+  let material = "";
+  let quantity = 0;
+
+  onMount(async () => {
+    const response = await fetch("http://localhost:5000/suppliers");
+    const data = await response.json();
+    array = data;
+    console.log(array);
+  });
+
+  //search function to filter supplier list
+  async function search() {
+    const response = await fetch("http://localhost:5000/search");
+    const data = await response.json();
+    array = data;
+    
+  }
 </script>
 
 <head>
@@ -33,7 +53,15 @@
       width: 80%;
       margin-bottom: 10px;
     }
-    input[type="submit"] {
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      width: 80%;
+      margin-bottom: 10px;
+    }
+    button {
       padding: 10px;
       background-color: #003366;
       color: #fff;
@@ -83,17 +111,19 @@
       id="material"
       name="material"
       placeholder="Enter material name"
+      bind:value={material}
     /><br />
 
     <label for="quantity">Quantity:</label>
     <input
-      type="text"
+      type="number"
       id="quantity"
       name="quantity"
       placeholder="Enter quantity"
+      bind:value={quantity}
     /><br />
 
-    <input type="submit" value="Search" />
+    <button on:click={search}>search</button>
   </form>
 
   <div class="supplier">
