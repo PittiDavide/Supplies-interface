@@ -11,17 +11,30 @@
   onMount(async () => {
     const response = await fetch("http://localhost:5000/suppliers");
     const data = await response.json();
+    console.log($array.length);
     //array.set(data);
   });
 
   //search function to filter supplier list and create the table
   async function search() {
+    try {
+      console.log(date.length);
+      if (material == "" || quantity == 0 || date.length != 10) {
+        alert("Please fill all the fields");
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+    }
     const response = await fetch(
       "http://localhost:5000/search/" + material + "/" + quantity + "/" + date
     );
     const data = await response.json();
+    console.log(data);
     array.set(data);
-    console.log($array);
+    console.log("prima");
+    console.log($array.length);
+    console.log("dopo");
   }
 </script>
 
@@ -82,6 +95,7 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
       display: none;
+      overflow-x: auto;
     }
     .supplier h2 {
       font-size: 24px;
@@ -131,67 +145,41 @@
 
     <button on:click={search}>search</button>
   </form>
-
   <div class="supplier">
     <h2>Supplier List</h2>
     <table>
       <thead>
         <tr>
           <th>Supplier Name</th>
-          <th>Goods</th>
-          <th>Price</th>
-          <th>Quantity</th>
           <th>Email</th>
+          <th>Goods</th>
+          <th>Inizial Price</th>
+          <th>Quantity</th>
+          <th>Quantity Discover</th>
+          <th>Value Discover</th>
+          <th>Date Discover</th>
+          <th> Delivery Time</th>
+          <th>Total Price</th>
         </tr>
       </thead>
       <tbody>
         {#each $array as supplier}
           <tr>
             <td>{supplier.name_s}</td>
+            <td>{supplier.address}</td>
             <td>{supplier.name_g}</td>
             <td>{(price = supplier.price * supplier.quantity)}</td>
             <td>{supplier.quantity}</td>
-            <td>{supplier.address}</td>
+            <td>{supplier.quantity_discount}</td>
+            <td>{supplier.value_discount}</td>
+            <td>{supplier.date_discount}</td>
+            <td>{supplier.delivery_time} days</td>
+            <td>{supplier.total_price}</td>
           </tr>
         {/each}
       </tbody>
     </table>
   </div>
-
-  <div class="supplier">
-    <h2>Supplier List</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Supplier Name</th>
-          <th>Contact Person</th>
-          <th>Contact Number</th>
-          <th>Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Supplier 1</td>
-          <td>John Doe</td>
-          <td>123-456-7890</td>
-          <td>john.doe@supplier1.com</td>
-        </tr>
-        <tr>
-          <td>Supplier 2</td>
-          <td>Jane Doe</td>
-          <td>123-456-7890</td>
-          <td>jane.doe@supplier2.com</td>
-        </tr>
-        <tr>
-          <td>Supplier 3</td>
-          <td>Bob Smith</td>
-          <td>123-456-7890</td>
-          <td>bob.smith@supplier3.com</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
   <script>
     const form = document.querySelector("form");
     const supplierList = document.querySelector(".supplier");

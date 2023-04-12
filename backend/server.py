@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, render_template, request, jsonify
 from flask_mysqldb import MySQL
 from flask_cors import CORS
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -49,7 +50,7 @@ def get_suppliers():
 
 @app.route("/search/<string:name>/<int:quantity>/<string:date>", methods=['GET'])
 def search(name, quantity, date):
-
+    date = datetime.strptime(date, '%Y-%m-%d').date()
     cursor = mysql.connection.cursor()
     # select all the supplies joined whit suppliers and whit the goods table to get the name of the goods, the date and the quantity
     cursor.execute(''' SELECT * FROM supplies inner JOIN supplier ON supplies.id_s = supplier.id_s 
@@ -57,27 +58,77 @@ def search(name, quantity, date):
     suppliers = cursor.fetchall()
     array = []
     for i in suppliers:
+        # if a element is null or 0, change it in a int 0
+        price = i[1] or 0
+        quantity_discount = i[5] or 0
+        value_discount = i[7] or 0
+        season_discount = i[12] or 0
+        date_discount = i[10] or 0
+        print(price, quantity)
+        started_price = price * quantity
+        total_price = started_price
+        print(total_price)
+
         out = {
             # id_supplies, price, delivery_time, quantity, quantity_for_sale, quantity_sale, value, value_sale, s_date, e_date,date_sale, season,seson_sale, id_s,id_g,id_s,name_s,address,id_g,name_g
             "id_supplies": i[0],
-            "price": i[1],
+            "price": price,
             "delivery_time": i[2],
             "quantity": i[3],
             "quantity_for_sale": i[4],
-            "quantity_sale": i[5],
+            "quantity_sale": quantity_discount,
             "value": i[6],
-            "value_sale": i[7],
+            "value_sale": value_discount,
             "s_date": i[8],
             "e_date": i[9],
-            "date_sale": i[10],
+            "date_sale": date_discount,
             "season": i[11],
-            "seson_sale": i[12],
+            "seson_sale": season_discount,
             "id_s": i[13],
             "id_g": i[14],
             "name_s": i[16],
             "address": i[17],
-            "name_g": i[19]
+            "name_g": i[19],
         }
+        # if the quantity for sale is not null
+        if (i[4] != 0 and i[4] is not None and quantity_discount != 0):
+            out["quantity_discount"] = "offers a " + \
+                str(quantity_discount) + "% discount if you order " + \
+                str(i[4]) + " pcs or more"
+            if (quantity > i[4]):
+                total_price = total_price - \
+                    (started_price * quantity_discount / 100)
+
+        else:
+            out["quantity_discount"] = "no discount"
+        # if the season for sale and seosn is not null or 0
+        if (i[11] != 0 and i[11] is not None and season_discount != 0):
+            out["season_discount"] = "offers a " + \
+                str(season_discount) + \
+                "% for purcheases placed in " + str(i[11])
+        else:
+            out["season_discount"] = "no discount"
+        # if the date for sale, e_date and s_date is not null
+        if (date_discount and i[9] is not None and i[9] != 0 and i[8] is not None and i[8] != 0):
+            out["date_discount"] = "offers a " + str(date_discount) + "% discount for purcheases between " + \
+                str(i[8]) + " and " + str(i[9])
+            if (date >= i[8] and date <= i[9]):
+                total_price = total_price - \
+                    (started_price * date_discount / 100)
+        else:
+            out["date_discount"] = "no discount"
+        # if the value and value sale is not null
+        if (i[6] != 0 and i[6] is not None and value_discount != 0):
+            out["value_discount"] = "offers a " + \
+                str(value_discount) + "% discount for purcheases of minimum " + \
+                str(i[6]) + "€"
+            if (started_price > i[6]):
+                total_price = total_price - \
+                    (started_price * value_discount / 100)
+        else:
+            out["value_discount"] = "no discount"
+        print(total_price)
+        out["total_price"] = total_price
         array.append(out)
     cursor.close()
     return jsonify(array)
