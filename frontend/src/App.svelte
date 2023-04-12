@@ -1,24 +1,27 @@
 <script>
   //get supplier list from backend
   import { onMount } from "svelte";
+  import { array } from "./store.js";
 
-  let array = [];
   let material = "";
   let quantity = 0;
+  let date = new Date();
+  let price = 0;
 
   onMount(async () => {
     const response = await fetch("http://localhost:5000/suppliers");
     const data = await response.json();
-    array = data;
-    console.log(array);
+    //array.set(data);
   });
 
-  //search function to filter supplier list
+  //search function to filter supplier list and create the table
   async function search() {
-    const response = await fetch("http://localhost:5000/search");
+    const response = await fetch(
+      "http://localhost:5000/search/" + material + "/" + quantity + "/" + date
+    );
     const data = await response.json();
-    array = data;
-    
+    array.set(data);
+    console.log($array);
   }
 </script>
 
@@ -123,8 +126,37 @@
       bind:value={quantity}
     /><br />
 
+    <label for="date">Date:</label>
+    <input type="date" id="date" name="date" bind:value={date} /><br />
+
     <button on:click={search}>search</button>
   </form>
+
+  <div class="supplier">
+    <h2>Supplier List</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Supplier Name</th>
+          <th>Goods</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each $array as supplier}
+          <tr>
+            <td>{supplier.name_s}</td>
+            <td>{supplier.name_g}</td>
+            <td>{(price = supplier.price * supplier.quantity)}</td>
+            <td>{supplier.quantity}</td>
+            <td>{supplier.address}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
 
   <div class="supplier">
     <h2>Supplier List</h2>
