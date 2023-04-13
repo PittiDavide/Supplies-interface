@@ -7,9 +7,10 @@
   let quantity = 0;
   let date = new Date();
   let price = 0;
+  let show = false;
 
   onMount(async () => {
-    const response = await fetch("http://localhost:5000/suppliers");
+    const response = await fetch("/suppliers");
     const data = await response.json();
     console.log($array.length);
     //array.set(data);
@@ -21,20 +22,19 @@
       console.log(date.length);
       if (material == "" || quantity == 0 || date.length != 10) {
         alert("Please fill all the fields");
+        show = false;
         return;
       }
     } catch (error) {
       console.log(error);
     }
     const response = await fetch(
-      "http://localhost:5000/search/" + material + "/" + quantity + "/" + date
+      "/search/" + material + "/" + quantity + "/" + date
     );
     const data = await response.json();
     console.log(data);
     array.set(data);
-    console.log("prima");
-    console.log($array.length);
-    console.log("dopo");
+    show = true;
   }
 </script>
 
@@ -168,7 +168,7 @@
             <td>{supplier.name_s}</td>
             <td>{supplier.address}</td>
             <td>{supplier.name_g}</td>
-            <td>{(price = supplier.price * supplier.quantity)}</td>
+            <td>{(price = supplier.price * quantity)}</td>
             <td>{supplier.quantity}</td>
             <td>{supplier.quantity_discount}</td>
             <td>{supplier.value_discount}</td>

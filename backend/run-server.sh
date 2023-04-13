@@ -1,0 +1,1 @@
+flask --app server create_tables && gunicorn --bind 0.0.0.0:8080 server:app
