@@ -3,36 +3,36 @@
 
 ---
 ## **Functional analysis**
-### **NARRATIVA**
+### **NARRATIVE**
 
-Come dipendente del negozio, voglio un sistema in grado di trovare il miglior fornitore di un prodotto dato il prezzo di acquisto e gli eventuali sconti applicabili, in modo da poter acquistare merce dal fornitore più conveniente. Inoltre, voglio visualizzare i tempi di spedizione minimi di ogni fornitore per poter scegliere anche in base alla velocità di consegna.
+As a shop employee, I want a system which can find the best supplier for a product knowing the price of the product and eventually sales applied on
+it, in order to buy goods from the cheapest supplier.
+I also want the minimum shipping times as possible, for each supplier so i can decide who's the fastest to deliver.
 
-### **ACCEPTANCE CRITERIA**
-
-1. **Scenario**: Nessun fornitore vende il prodotto richiesto
-+ **Dato**: che il negozio non ha ancora acquistato il prodotto.
-+ **Quando** cerco un fornitore per il prodotto desiderato
-+ **Allora** il sistema deve restituire un messaggio di errore indicando che il prodotto non è disponibile
-2. **Scenario**: Almeno un fornitore vende il prodotto richiesto
-+ **Dato** che il negozio ha specificato il prodotto da acquistare e la quantità desiderata
-+ **Quando** cerco i fornitori che vendono il prodotto richiesto
-+ **Allora** il sistema deve restituire una lista di fornitori che vendono il prodotto richiesto, indicando il prezzo di acquisto e il tempo di spedizione di ciascun fornitore
-3. **Scenario**: Nessun fornitore offre uno sconto per l'ordine richiesto
-+ **Dato** che il negozio ha specificato il prodotto da acquistare e la quantità desiderata, e non c'è alcuno sconto disponibile
-+ **Quando** cerco i fornitori che vendono il prodotto richiesto
-+ **Allora** il sistema deve restituire la lista di fornitori come descritto nel precedente scenario
-4. **Scenario**: Almeno un fornitore offre uno sconto per l'ordine richiesto
-+ **Dato** che il negozio ha specificato il prodotto da acquistare e la quantità desiderata, e ci sono sconti disponibili
-+ **Quando** cerco i fornitori che vendono il prodotto richiesto
-+ **Allora** il sistema deve restituire una lista di fornitori che vendono il prodotto richiesto, indicando il prezzo di acquisto e il tempo di spedizione di ciascun fornitore, inclusi gli sconti applicabili
-5. **Scenario**: Un fornitore offre uno sconto solo per un periodo limitato
-+ **Dato** che il negozio ha specificato il prodotto da acquistare e la quantità desiderata, e un fornitore offre uno sconto solo per un periodo limitato
-+ **Quando** cerco i fornitori che vendono il prodotto richiesto
-+ **Allora** il sistema deve restituire una lista di fornitori che vendono il prodotto richiesto, indicando il prezzo di acquisto e il tempo di spedizione di ciascun fornitore, inclusi gli sconti applicabili solo per il periodo indicato
-6. **Scenario**: Un fornitore offre uno sconto solo per un certo quantitativo minimo di prodotto
-+ **Dato** che il negozio ha specificato il prodotto da acquistare e una certa quantità minima richiesta per ottenere lo sconto offerto da un fornitore.
-+ **Quando** cerco i fornitori che vendono il prodotto richiesto
-+ **Allora** il sistema deve restituire una lista di fornitori che vendono il prodotto richiesto, indicando il prezzo di acquisto e il tempo di spedizione di ciascun fornitore, inclusi gli sconti applicabili solo se la quantità minima richiesta è raggiunta.
+1. **Scenario**: No supplier sell the requested product
+> + **Given**: The shop haven't still bought the product
+> + **When** I have to look for a supplier who can sell the product
+> + **Then*** The system have to send an error message saying that the product is not available
+2. **Scenario**: At the least one supplier sells the requested product
+> + **Given** The shop has specified the product and the quantity needed
+> + **When** I have to look for a supplier who can sell the product
+> + **Then** the system must return a list of suppliers who sell the requested product, indicating the purchase price and shipping time of each supplier
+3. **Scenario**: No supplier offers a discount for the requested order
+> + **Given** I have to look for a supplier who can sell the product, and there is no discount available
+> + **When** I look for suppliers who sell the required product
+> + **Then** the system should return the supplier list as described in the previous scenario
+4. **Scenario**: At least one supplier offers a discount for the requested order
+> + **Since** the store has specified the product to purchase and the desired quantity, and there are discounts available
+> + **When** I look for suppliers who sell the required product
+> + **Then** the system must return a list of suppliers selling the requested product, indicating the purchase price and shipping time of each supplier, including applicable discounts
+5. **Scenario**: A vendor offers a discount for a limited time only
+> + **Because** the shop has specified the product to buy and the desired quantity, and a supplier offers a discount for a limited time only
+> + **When** I have to look for a supplier who can sell the product
+> + **Then** the system must return a list of suppliers who sell the requested product, indicating the purchase price and shipping time of each supplier, including discounts applicable only for the indicated period
+6. **Scenario**: A supplier offers a discount only for a certain minimum quantity of product
+> + **Since** the store has specified the product to purchase and a certain minimum quantity required to obtain the discount offered by a supplier.
+> + **When** I have to look for a supplier who can sell the product
+> + **Then** the system must return a list of suppliers who sell the requested product, indicating the purchase price and shipping time of each supplier, including discounts applicable only if the minimum quantity requested is reached.
 ## **Tecnologies**
 This app is divided between:
 + Frontend
@@ -80,3 +80,33 @@ The ***'supplier'*** and ***'supplies'*** tables are linked by a one-to-many rel
 + **Supplier** (***'id_s'*** `PK`, 'name', 'address');
 + **Goods** (***'id_g'*** `PK`, 'name');
 + **Supplies** (***'id_supplies'*** PK, ***'id_s'*** `FK`, ***'id_g'*** `FK`, 'price', 'delivery_time', 'quantity', 'quantity_for_sale', 'quantity_sale', 'value', 'value_sale', 's_date', 'e_date', 'date_sale', 'season', 'season_sale');
+## **SQL**
+        CREATE DATABASE supplies_db;
+        CREATE TABLE goods (
+          id_g int PRIMARY KEY NOT NULL,
+          name varchar(20)
+        );
+        CREATE TABLE supplier (
+            id_s int PRIMARY KEY NOT NULL,
+            name varchar(20),
+            address varchar(255)
+        );
+        CREATE TABLE supplies (
+            id_supplies int PRIMARY KEY NOT NULL,
+            price int,
+            delivery_time int,
+            quantity int,
+            quantity_for_sale int,
+            quantity_sale int,
+            value int,
+            value_sale int,
+            s_date date,
+            e_date date,
+            date_sale int,
+            season varchar(20),
+            season_sale int,
+            id_s int NOT NULL,
+            id_g int NOT NULL,
+            FOREIGN KEY (id_s) REFERENCES supplier (id_s) ON DELETE CASCADE,
+            FOREIGN KEY (id_g) REFERENCES goods (id_g) ON DELETE CASCADE
+        );
